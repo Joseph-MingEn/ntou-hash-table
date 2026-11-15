@@ -25,8 +25,16 @@ let frameIndex = 0;
 let playTimer = null;
 let selectedBucket = null;
 
-function bucketFor(key) {
-  return ((key % TABLE_SIZE) + TABLE_SIZE) % TABLE_SIZE;
+function divideKey(key) {
+  const divisor = BigInt(TABLE_SIZE);
+  const number = BigInt(key);
+  let quotient = number / divisor;
+  let remainder = number % divisor;
+  if (remainder < 0n) {
+    quotient -= 1n;
+    remainder += divisor;
+  }
+  return { quotient: quotient.toString(), remainder: Number(remainder) };
 }
 
 function parseSequence(text) {
@@ -44,33 +52,39 @@ function parseSequence(text) {
   return { values };
 }
 
-function cloneTable(table) {
-  return table.map((chain) => [...chain]);
-}
-
 function makeFrames(values) {
-  const table = Array.from({ length: TABLE_SIZE }, () => []);
+  const heads = Array(TABLE_SIZE).fill(null);
+  const tails = Array(TABLE_SIZE).fill(null);
+  const bucketLengths = Array(TABLE_SIZE).fill(0);
+  const tableSnapshot = () => heads.map((head) => {
+    const keys = [];
+    for (let node = head; node; node = node.next) keys.push(node.key);
+    return keys;
+  });
   const rows = [];
   const result = [{
-    table: cloneTable(table), rows: [], latestBucket: null, latestValue: null,
+    table: Array.from({ length: TABLE_SIZE }, () => []), rows: [], latestBucket: null, latestValue: null,
     message: '從空表開始。依序取出一筆輸入，計算 h(k)，再將該鍵接到對應桶子的串列尾端。',
   }];
 
   values.forEach((key, index) => {
-    const bucket = bucketFor(key);
-    const chain = table[bucket];
-    const collision = chain.length > 0;
-    const quotient = Math.floor(key / TABLE_SIZE);
-    const remainder = key - quotient * TABLE_SIZE;
+    const { quotient, remainder } = divideKey(key);
+    const bucket = remainder;
+    const collision = heads[bucket] !== null;
+    const node = { key, next: null };
+    if (tails[bucket]) tails[bucket].next = node;
+    else heads[bucket] = node;
+    tails[bucket] = node;
+    const chainLength = bucketLengths[bucket] + 1;
+    bucketLengths[bucket] = chainLength;
     const row = { index: index + 1, key, quotient, remainder, bucket, collision };
-    chain.push(key);
     rows.push(row);
     const equation = `${key} = (${quotient} × 13) + ${remainder}`;
     const msg = collision
-      ? `第 ${index + 1} 筆：${key} 除以 13 的餘數為 ${bucket}，落在桶 ${bucket}。該桶已有 ${chain.length - 1} 筆資料，發生碰撞；將 ${key} 接到串列尾端。`
+      ? `第 ${index + 1} 筆：${key} 除以 13 的餘數為 ${bucket}，落在桶 ${bucket}。該桶已有 ${chainLength - 1} 筆資料，發生碰撞；將 ${key} 接到串列尾端。`
       : `第 ${index + 1} 筆：${key} 除以 13 的餘數為 ${bucket}，落在桶 ${bucket}。該桶目前為空，建立第一個節點。`;
     result.push({
-      table: cloneTable(table), rows: [...rows], latestBucket: bucket, latestValue: key,
+      table: tableSnapshot(), rows: [...rows], latestBucket: bucket, latestValue: key,
       message: `${msg}（${equation}）`,
     });
   });
