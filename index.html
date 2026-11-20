@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#f4f2ec">
   <meta name="description" content="輸入 15 個整數，互動觀察雜湊函數 h(k)=k mod 13 如何將資料放入 13 個鏈結串列。">
   <title>鏈結法雜湊表｜資料結構互動展示</title>
-  <link rel="stylesheet" href="style.css?v=chained-hash-2">
+  <link rel="stylesheet" href="style.css?v=chained-hash-3">
 </head>
 <body>
   <main class="shell" id="top">
@@ -99,6 +99,14 @@
         </article>
       </div>
       <div class="invariant"><b>正確性：歸納不變條件</b><span>初始空表符合條件。每步都把新鍵 <code>k</code> 接到索引 <code>h(k)</code> 的串列尾端，既有節點不移除、不重複；因此插入後每個輸入項目恰出現一次，且只在正確桶中，鏈結順序也保留輸入次序。此條件由第一筆維持到第十五筆。</span></div>
+    </section>
+
+    <section class="contribution-section" aria-labelledby="contributionTitle">
+      <div class="explanation-heading"><div><p class="eyebrow">05 / PROJECT NOTES</p><h2 id="contributionTitle">個人貢獻與 AI 協作說明</h2></div><p>記錄本展示的需求設定、實作協助與修訂方式。</p></div>
+      <div class="contribution-grid">
+        <article class="contribution-card"><span class="card-number">01 / 個人貢獻</span><h3>需求與成果方向</h3><p>本人訂定題目規格：以 13 取餘決定桶索引、使用鏈結法處理碰撞，並提供 15 筆數值作為互動輸入。本人依老師評分標準要求補充演算法流程、正確性與範例核對，並確認維持原題目方向及使用獨立的 GitHub Pages 網址。</p></article>
+        <article class="contribution-card"><span class="card-number">02 / AI 協作</span><h3>程式撰寫與反覆修訂</h3><p>AI 協助撰寫 HTML、CSS 與 JavaScript，製作逐筆插入、碰撞呈現、計算明細及負數取餘處理，並整理偽程式碼、複雜度與正確性說明。本人提供規格與修訂方向並審閱成果；核心程式與說明文字由 AI 協助產生。</p></article>
+      </div>
     </section>
 
     <footer><span>KEY <b>→</b> HASH <b>→</b> BUCKET <b>→</b> CHAIN</span><span>鏈結法 · Separate Chaining</span><span>資料結構練習 <i>✳</i></span></footer>
